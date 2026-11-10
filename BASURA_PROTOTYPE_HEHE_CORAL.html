@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BASURA | Waste collection monitoring and route assistance</title>
+<meta name="description" content="BASURA is a web and SMS based waste collection monitoring and route assistance system for Barangay Gen. T. De Leon, Valenzuela City." />
+<meta name="theme-color" content="#ffffff" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --ink:#000;
+  --text:#1a1a1a;
+  --mid:#6b6b6b;
+  --soft:#f4f4f4;
+  --line:#e2e2e2;
+  --blue:#1428a0;
+  --font:"Inter","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --wrap:1240px;
+}
+*,*::before,*::after{box-sizing:border-box;border-radius:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:#fff;color:var(--text);font:400 16px/1.6 var(--font);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+a{color:inherit}
+p{margin:0 0 1em}
+p:last-child{margin:0}
+h1,h2,h3{margin:0;color:var(--ink);font-weight:600;letter-spacing:-.035em;line-height:1.05}
+h1{font-size:clamp(2.8rem,7.2vw,6.25rem);letter-spacing:-.05em;line-height:.98}
+h2{font-size:clamp(2rem,4.2vw,3.5rem)}
+h3{font-size:1.0625rem;letter-spacing:-.01em;line-height:1.3;font-weight:600}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+.wrap{width:min(100% - 48px,var(--wrap));margin-inline:auto}
+.sec{padding:clamp(72px,10vw,150px) 0}
+.lede{font-size:clamp(1.0625rem,1.5vw,1.25rem);line-height:1.55;color:var(--mid);max-width:44ch}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;height:52px;padding:0 32px;border:1px solid var(--ink);background:var(--ink);color:#fff;font:500 .9375rem/1 var(--font);text-decoration:none;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.btn:hover{background:#333;border-color:#333}
+.btn--ghost{background:transparent;color:var(--ink)}
+.btn--ghost:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn--light{background:#fff;color:var(--ink);border-color:#fff}
+.btn--light:hover{background:#d9d9d9;border-color:#d9d9d9}
+.btn--lineLight{background:transparent;color:#fff;border-color:#555}
+.btn--lineLight:hover{background:#fff;color:var(--ink);border-color:#fff}
+.btn--sm{height:40px;padding:0 20px;font-size:.875rem}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+
+/* header */
+.hdr{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:saturate(1.2) blur(10px);border-bottom:1px solid var(--line)}
+.hdr__in{display:flex;align-items:center;justify-content:space-between;height:72px;gap:24px}
+.logo{font-weight:700;font-size:1.125rem;letter-spacing:.14em;text-decoration:none;color:var(--ink)}
+.nav{display:flex;align-items:center;gap:36px}
+.nav a:not(.btn){font-size:.9375rem;color:var(--text);text-decoration:none;padding:6px 0;border-bottom:1px solid transparent;transition:border-color .15s}
+.nav a:not(.btn):hover{border-color:var(--ink)}
+.burger{display:none;width:44px;height:44px;border:0;background:none;cursor:pointer;padding:0;place-items:center;align-content:center;gap:6px}
+.burger i{display:block;width:22px;height:1.5px;background:var(--ink);transition:transform .18s,opacity .18s}
+.burger[aria-expanded="true"] i:nth-child(1){transform:translateY(7.5px) rotate(45deg)}
+.burger[aria-expanded="true"] i:nth-child(2){opacity:0}
+.burger[aria-expanded="true"] i:nth-child(3){transform:translateY(-7.5px) rotate(-45deg)}
+
+/* hero */
+.hero{padding:clamp(56px,8vw,120px) 0 clamp(64px,9vw,130px)}
+.hero h1{max-width:12ch}
+.hero__grid{display:grid;grid-template-columns:7fr 5fr;gap:clamp(40px,6vw,96px);margin-top:clamp(48px,7vw,104px);align-items:start}
+.hero__cta{display:flex;flex-wrap:wrap;gap:12px;margin:36px 0 56px}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;border-top:1px solid var(--ink);padding-top:20px}
+.facts b{display:block;font-weight:600;color:var(--ink);font-size:.9375rem}
+.facts span{font-size:.875rem;color:var(--mid)}
+
+/* request panel */
+.panel{background:var(--soft);padding:clamp(24px,3vw,40px)}
+.panel h2{font-size:1.5rem;letter-spacing:-.025em;margin-bottom:6px}
+.panel__sub{font-size:.875rem;color:var(--mid);margin-bottom:24px}
+.status{display:flex;gap:10px;align-items:flex-start;margin:14px 0 24px;font-size:.875rem;color:var(--mid);min-height:22px}
+.status::before{content:"";flex:none;width:7px;height:7px;background:#b5b5b5;margin-top:8px}
+.status[data-type="ok"]{color:#0a6b3a}.status[data-type="ok"]::before{background:#0a6b3a}
+.status[data-type="err"]{color:#b3261e}.status[data-type="err"]::before{background:#b3261e}
+.status[data-type="busy"]::before{background:var(--blue);animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.25}}
+.readout{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:24px}
+.readout div{background:#fff;padding:12px 14px}
+.readout dt{font-size:.75rem;color:var(--mid);margin-bottom:2px}
+.readout dd{margin:0;font-size:.9375rem;font-weight:500;color:var(--ink);word-break:break-all}
+.readout dd.is-empty{color:#a8a8a8;font-weight:400}
+.readout dl{display:contents}
+.map-link{display:none;margin:-12px 0 24px;font-size:.8125rem;font-weight:500;color:var(--blue);text-decoration:none;border-bottom:1px solid var(--blue);padding-bottom:1px;width:max-content}
+.map-link.is-on{display:inline-block}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.8125rem;font-weight:500;color:var(--ink);margin-bottom:6px}
+.field input,.field select{width:100%;height:48px;padding:0 14px;border:1px solid transparent;border-bottom:1px solid #bdbdbd;background:#fff;color:var(--ink);font:inherit;font-size:.9375rem;appearance:none;-webkit-appearance:none;transition:border-color .15s}
+.field select{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23000' stroke-width='1.5'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 14px center}
+.field input::placeholder{color:#a8a8a8}
+.field input:focus,.field select:focus{outline:0;border-bottom-color:var(--blue);box-shadow:inset 0 -1px 0 var(--blue)}
+.field input[readonly]{color:var(--mid)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sms__label{font-size:.8125rem;font-weight:500;color:var(--ink);margin:8px 0 6px}
+.sms__body{background:var(--ink);color:#fff;font-size:.8125rem;line-height:1.6;padding:14px;min-height:64px;word-break:break-word}
+.panel__ft{display:flex;gap:12px;margin-top:16px}
+.panel__ft .btn{flex:1}
+.note{font-size:.75rem;color:var(--mid);margin-top:20px;line-height:1.55}
+
+/* split heading layout */
+.split{display:grid;grid-template-columns:4fr 8fr;gap:clamp(32px,6vw,96px);align-items:start}
+.split > :first-child{position:sticky;top:120px}
+.split h2{margin-bottom:20px}
+
+/* features */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 48px}
+.item{border-top:1px solid var(--ink);padding:24px 0 48px}
+.item h3{margin-bottom:10px}
+.item p{font-size:.9375rem;color:var(--mid);max-width:36ch}
+
+/* process */
+.alt{background:var(--soft)}
+.steps{list-style:none;margin:clamp(48px,6vw,88px) 0 0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:32px}
+.steps li{border-top:1px solid var(--ink);padding-top:20px}
+.steps .n{display:block;font-size:clamp(2.5rem,4vw,3.5rem);font-weight:300;letter-spacing:-.04em;color:var(--blue);line-height:1;margin-bottom:56px}
+.steps h3{margin-bottom:8px}
+.steps p{font-size:.9375rem;color:var(--mid)}
+
+/* sms */
+.dark{background:var(--ink);color:#fff}
+.dark h2{color:#fff}
+.dark .lede{color:#a6a6a6}
+.band{display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,7vw,120px);align-items:center}
+.band h2{margin-bottom:24px;max-width:14ch}
+.checks{list-style:none;margin:36px 0 44px;padding:0}
+.checks li{padding:16px 0;border-top:1px solid #2b2b2b;color:#d8d8d8;font-size:.9375rem}
+.checks li:last-child{border-bottom:1px solid #2b2b2b}
+.hero__cta.on-dark{margin:0}
+.phone{background:#141414;border:1px solid #2b2b2b;padding:28px;max-width:440px;justify-self:end;width:100%}
+.phone__hd{font-size:.8125rem;color:#8a8a8a;padding-bottom:16px;margin-bottom:20px;border-bottom:1px solid #2b2b2b;display:flex;justify-content:space-between}
+.msg{padding:14px 16px;margin-bottom:10px;font-size:.875rem;line-height:1.55;max-width:88%}
+.msg--in{background:#262626;color:#e6e6e6}
+.msg--out{background:var(--blue);color:#fff;margin-left:auto}
+
+/* evaluation */
+.crit{display:grid;grid-template-columns:repeat(3,1fr);gap:0 48px;margin-top:clamp(40px,5vw,72px)}
+.crit div{border-top:1px solid var(--ink);padding:20px 0 56px;font-size:1.25rem;font-weight:500;letter-spacing:-.02em;color:var(--ink)}
+.scope{font-size:.875rem;color:var(--mid);max-width:70ch;margin-top:8px}
+.evalhead{display:grid;grid-template-columns:7fr 5fr;gap:clamp(32px,6vw,96px);align-items:end}
+
+/* faq */
+details{border-top:1px solid var(--line)}
+details:last-child{border-bottom:1px solid var(--line)}
+summary{list-style:none;cursor:pointer;position:relative;padding:28px 56px 28px 0;font-size:1.125rem;font-weight:500;color:var(--ink);letter-spacing:-.015em}
+summary::-webkit-details-marker{display:none}
+summary::before,summary::after{content:"";position:absolute;right:6px;top:50%;width:16px;height:1.5px;background:var(--ink);transition:transform .2s}
+summary::after{transform:rotate(90deg)}
+details[open] summary::after{transform:rotate(0)}
+details p{padding:0 56px 28px 0;color:var(--mid);max-width:62ch;font-size:.9375rem}
+
+/* footer */
+.ftr{background:var(--soft);padding:clamp(56px,7vw,96px) 0 32px;font-size:.875rem;color:var(--mid)}
+.ftr__grid{display:grid;grid-template-columns:5fr 3fr 4fr;gap:40px}
+.ftr .logo{display:block;margin-bottom:16px}
+.ftr p{max-width:38ch}
+.ftr h3{font-size:.875rem;margin-bottom:16px}
+.ftr ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.ftr a{text-decoration:none}
+.ftr a:hover{color:var(--ink);text-decoration:underline}
+.ftr__bottom{margin-top:72px;padding-top:20px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 24px;font-size:.8125rem}
+
+.skip{position:absolute;left:-9999px;top:12px;z-index:99;background:#fff;padding:10px 16px;border:1px solid var(--ink)}
+.skip:focus{left:16px}
+
+@media (max-width:960px){
+  .hero__grid,.split,.band,.evalhead{grid-template-columns:1fr}
+  .split > :first-child{position:static}
+  .steps{grid-template-columns:1fr 1fr}
+  .crit{grid-template-columns:1fr 1fr}
+  .ftr__grid{grid-template-columns:1fr 1fr}
+  .ftr__grid > :first-child{grid-column:1/-1}
+  .phone{justify-self:start}
+}
+@media (max-width:860px){
+  .burger{display:grid}
+  .nav{position:absolute;left:0;right:0;top:100%;display:none;flex-direction:column;align-items:stretch;gap:0;background:#fff;border-bottom:1px solid var(--line);padding:8px 24px 24px}
+  .nav.is-open{display:flex}
+  .nav a:not(.btn){padding:16px 0;border-bottom:1px solid var(--line);font-size:1rem}
+  .nav .btn{margin-top:20px}
+}
+@media (max-width:600px){
+  .grid2,.steps,.crit,.pair,.facts{grid-template-columns:1fr}
+  .hero__cta .btn{width:100%}
+  .panel__ft{flex-direction:column}
+  .ftr__grid{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="hdr">
+  <div class="wrap hdr__in">
+    <a class="logo" href="#top" aria-label="BASURA home">BASURA</a>
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#evaluation">Evaluation</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn btn--sm" href="#request">New request</a>
+    </nav>
+    <button class="burger" id="burger" aria-expanded="false" aria-controls="nav" aria-label="Menu"><i></i><i></i><i></i></button>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero" id="top">
+    <div class="wrap">
+      <h1>Waste collection, tracked street by street.</h1>
+
+      <div class="hero__grid">
+        <div>
+          <p class="lede">Residents request a pickup by text and see when the truck is coming. Barangay staff get a live route instead of a clipboard, including the alleys and interior pockets trucks cannot easily enter.</p>
+          <div class="hero__cta">
+            <a class="btn" href="#request">Create a request</a>
+            <a class="btn btn--ghost" href="#how">How it works</a>
+          </div>
+          <div class="facts">
+            <div><b>SMS and web</b><span>No app to install</span></div>
+            <div><b>Route planning</b><span>For collectors</span></div>
+            <div><b>Pilot scope</b><span>One barangay</span></div>
+          </div>
+        </div>
+
+        <div class="panel" id="request">
+          <h2>New collection request</h2>
+          <p class="panel__sub">Interactive demo. Runs on your device only.</p>
+
+          <button class="btn" id="captureBtn" style="width:100%" type="button">Use my location and time</button>
+          <div class="status" id="captureStatus" role="status" aria-live="polite">Tap the button to fill in your coordinates and timestamp.</div>
+
+          <dl class="readout">
+            <div><dt>Latitude</dt><dd id="outLat" class="is-empty">Not captured</dd></div>
+            <div><dt>Longitude</dt><dd id="outLng" class="is-empty">Not captured</dd></div>
+            <div><dt>Accuracy</dt><dd id="outAcc" class="is-empty">Not captured</dd></div>
+            <div><dt>Time</dt><dd id="outTime" class="is-empty">Not captured</dd></div>
+          </dl>
+
+          <a class="map-link" id="mapLink" href="#" target="_blank" rel="noopener noreferrer">View captured point on map &rarr;</a>
+
+          <div class="field">
+            <label for="fType">Waste type</label>
+            <select id="fType">
+              <option>Non-biodegradable</option>
+              <option>Biodegradable / organic</option>
+              <option>Solid waste</option>
+              <option>Hazardous</option>
+              <option>Liquid</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="fPoint">Pickup point</label>
+            <input id="fPoint" type="text" placeholder="e.g. Purok 4 covered court" autocomplete="off" />
+          </div>
+          <div class="pair field">
+            <div><label for="fCoords">Coordinates</label><input id="fCoords" type="text" readonly placeholder="Not captured" /></div>
+            <div><label for="fTime">Requested time</label><input id="fTime" type="text" readonly placeholder="Not captured" /></div>
+          </div>
+
+          <div class="sms__label">SMS preview</div>
+          <div class="sms__body" id="smsPreview">PICKUP / Non-biodegradable / time / coordinates / pickup point</div>
+
+          <div class="panel__ft">
+            <button class="btn btn--ghost btn--sm" id="copyBtn" type="button">Copy as SMS</button>
+            <button class="btn btn--ghost btn--sm" id="resetBtn" type="button">Reset</button>
+          </div>
+          <p class="note">Location access needs HTTPS or localhost and your browser's permission. Nothing is sent anywhere.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="features" style="padding-top:0">
+    <div class="wrap split">
+      <div>
+        <h2>What the system does</h2>
+        <p class="lede">One dashboard for barangay staff. One text thread for residents.</p>
+      </div>
+      <div class="grid2">
+        <div class="item"><h3>SMS collection requests</h3><p>Residents text waste type, preferred time, location, and designated pickup point. No internet required.</p></div>
+        <div class="item"><h3>Schedule monitoring</h3><p>Schedules are organized and displayed per area so residents know when the truck is coming.</p></div>
+        <div class="item"><h3>Route and pickup points</h3><p>Routes and designated pickup points appear in one view, including interior areas trucks cannot reach.</p></div>
+        <div class="item"><h3>Resident notifications</h3><p>Automatic SMS alerts for schedule changes, route updates, and pickup confirmations.</p></div>
+        <div class="item"><h3>Reporting and recording</h3><p>Every request and concern is logged so personnel can review and act on it.</p></div>
+        <div class="item"><h3>Built for the looban</h3><p>Households in narrow alleys register a pickup point that collection vehicles can actually reach.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec alt" id="how">
+    <div class="wrap">
+      <h2 style="max-width:16ch">From a text message to a planned route</h2>
+      <ol class="steps">
+        <li><span class="n">1</span><h3>Resident sends a request</h3><p>By SMS or the web app: waste type, preferred time, location, and pickup point.</p></li>
+        <li><span class="n">2</span><h3>Request is logged</h3><p>It appears on the barangay dashboard with a reference number and timestamp.</p></li>
+        <li><span class="n">3</span><h3>Route and schedule update</h3><p>Personnel review incoming requests and adjust the day's route and pickup points.</p></li>
+        <li><span class="n">4</span><h3>Resident is notified</h3><p>An SMS confirms the pickup window, so no one puts trash out too early.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec dark">
+    <div class="wrap band">
+      <div>
+        <h2>Not every household has data. Every household has text.</h2>
+        <p class="lede">Requests and notifications travel through a telco SMS gateway, so residents with basic phones or limited internet can still report waste and receive schedule updates.</p>
+        <ul class="checks">
+          <li>Send a pickup request without opening a browser</li>
+          <li>Receive schedule and route updates as text messages</li>
+          <li>Web dashboard for barangay staff and collectors</li>
+        </ul>
+        <div class="hero__cta on-dark">
+          <a class="btn btn--light" href="#request">Create a request</a>
+          <a class="btn btn--lineLight" href="#evaluation">Evaluation criteria</a>
+        </div>
+      </div>
+      <div class="phone" aria-hidden="true">
+        <div class="phone__hd"><span>Messages</span><span>BASURA</span></div>
+        <div class="msg msg--in">Reminder: collection for Purok 4 is tomorrow, 6:00 AM. Place bags at the designated pickup point.</div>
+        <div class="msg msg--out">PICKUP / Non-biodegradable / 6:30 AM / Purok 4 covered court</div>
+        <div class="msg msg--in">Request recorded. Route 3, estimated arrival 6:42 AM. Ref #A-1842.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="evaluation">
+    <div class="wrap">
+      <div class="evalhead">
+        <h2>Assessed against six software quality criteria</h2>
+        <p class="lede">BASURA is developed and evaluated as a Research 1 study at Gen. Tiburcio De Leon National High School. Residents and IT experts rate the system, and their feedback shapes the next version.</p>
+      </div>
+      <div class="crit">
+        <div>Functional suitability</div>
+        <div>Usability</div>
+        <div>Reliability</div>
+        <div>User-interface quality</div>
+        <div>Performance efficiency</div>
+        <div>Security</div>
+      </div>
+      <p class="scope">Scope note: the pilot covers Barangay Gen. T. De Leon only. BASURA supports collection monitoring and route planning. It does not replace waste segregation or the barangay's existing collection service.</p>
+    </div>
+  </section>
+
+  <section class="sec alt" id="faq">
+    <div class="wrap split">
+      <div><h2>Common questions</h2></div>
+      <div>
+        <details open><summary>Do I need internet to send a pickup request?</summary><p>No. Requests can be sent by SMS from any basic phone. The web app is available if you prefer a screen and have data.</p></details>
+        <details><summary>Which areas are covered?</summary><p>Barangay Gen. T. De Leon in Valenzuela City. The pilot does not cover other barangays, and route data is limited to this barangay.</p></details>
+        <details><summary>Can I choose which type of waste gets collected?</summary><p>Yes. You indicate the waste type (solid, liquid, organic, non-biodegradable, or hazardous) along with your preferred time, location, and designated pickup point.</p></details>
+        <details><summary>Does BASURA replace segregation or the current collection service?</summary><p>No. It is a monitoring and communication tool that supports the existing collection service. Segregation remains the responsibility of households and the barangay.</p></details>
+        <details><summary>Who can see my requests?</summary><p>Only authorized accounts approved by the system administrator: barangay officials, environmental personnel, and assigned waste collectors.</p></details>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="ftr">
+  <div class="wrap">
+    <div class="ftr__grid">
+      <div>
+        <a class="logo" href="#top">BASURA</a>
+        <p>Barangay Automated Solid-waste Utilization and Route Assistance. A web and SMS based waste collection monitoring system for Barangay Gen. T. De Leon, Valenzuela City.</p>
+      </div>
+      <div>
+        <h3>Sections</h3>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#evaluation">Evaluation</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#request">New request</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Project</h3>
+        <ul>
+          <li>Research 1, Senior High School</li>
+          <li>Gen. Tiburcio De Leon NHS</li>
+          <li>Valenzuela City</li>
+          <li style="padding-top:8px">Bautista, M. A.<br>Bautista, K. J.<br>Lee Jr., E.<br>Punzal, S. J.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="ftr__bottom">
+      <span>&copy; <span id="yr">2026</span> BASURA Research Team. Academic prototype.</span>
+      <span>Aligned with RA 9003, the Ecological Solid Waste Management Act of 2000</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (s) { return document.querySelector(s); };
+
+  var burger = $("#burger"), nav = $("#nav");
+  burger.addEventListener("click", function () {
+    var open = burger.getAttribute("aria-expanded") === "true";
+    burger.setAttribute("aria-expanded", String(!open));
+    nav.classList.toggle("is-open", !open);
+  });
+  nav.querySelectorAll("a").forEach(function (a) {
+    a.addEventListener("click", function () {
+      nav.classList.remove("is-open");
+      burger.setAttribute("aria-expanded", "false");
+    });
+  });
+
+  var btn = $("#captureBtn"), statusEl = $("#captureStatus"),
+      outLat = $("#outLat"), outLng = $("#outLng"), outAcc = $("#outAcc"), outTime = $("#outTime"),
+      fType = $("#fType"), fPoint = $("#fPoint"), fCoords = $("#fCoords"), fTime = $("#fTime"),
+      preview = $("#smsPreview"), copyBtn = $("#copyBtn"), resetBtn = $("#resetBtn"),
+      mapLink = $("#mapLink");
+  var EMPTY = "Not captured", IDLE = "Tap the button to fill in your coordinates and timestamp.";
+  var state = { lat: null, lng: null, acc: null, time: null };
+
+  function pad(n) { return n < 10 ? "0" + n : String(n); }
+  function stamp(d) {
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+  }
+  function setStatus(msg, type) {
+    statusEl.textContent = msg;
+    if (type) statusEl.setAttribute("data-type", type); else statusEl.removeAttribute("data-type");
+  }
+  function setOut(el, v) { el.textContent = v; el.classList.toggle("is-empty", v === EMPTY); }
+  function setBusy(busy) {
+    btn.disabled = busy;
+    btn.setAttribute("aria-busy", busy ? "true" : "false");
+    btn.textContent = busy ? "Locating\u2026" : (state.lat !== null ? "Update location and time" : "Use my location and time");
+  }
+  function compose() {
+    var coords = state.lat !== null ? state.lat.toFixed(5) + "," + state.lng.toFixed(5) : "coordinates";
+    return "PICKUP / " + fType.value + " / " + (state.time || "time") + " / " + coords + " / " + (fPoint.value.trim() || "pickup point");
+  }
+  function refresh() { preview.textContent = compose(); }
+
+  function reset() {
+    state = { lat: null, lng: null, acc: null, time: null };
+    [outLat, outLng, outAcc, outTime].forEach(function (e) { setOut(e, EMPTY); });
+    fCoords.value = ""; fTime.value = ""; fPoint.value = ""; fType.selectedIndex = 0;
+    mapLink.classList.remove("is-on");
+    mapLink.removeAttribute("href");
+    setBusy(false);
+    setStatus(IDLE);
+    refresh();
+  }
+
+  function onSuccess(pos) {
+    var c = pos.coords;
+    state.lat = c.latitude; state.lng = c.longitude;
+    state.acc = Math.round(c.accuracy); state.time = stamp(new Date());
+    setOut(outLat, c.latitude.toFixed(6));
+    setOut(outLng, c.longitude.toFixed(6));
+    setOut(outAcc, "\u00B1" + state.acc + " m");
+    setOut(outTime, state.time);
+    fCoords.value = c.latitude.toFixed(6) + ", " + c.longitude.toFixed(6);
+    fTime.value = state.time;
+    mapLink.href = "https://www.google.com/maps?q=" + c.latitude + "," + c.longitude;
+    mapLink.classList.add("is-on");
+    setStatus(state.acc > 100
+      ? "Location captured, but accuracy is low (\u00B1" + state.acc + " m). Check your signal if needed."
+      : "Location and time captured. Add a pickup point, then copy the request.", "ok");
+    setBusy(false);
+    refresh();
+  }
+  function onError(err) {
+    setBusy(false);
+    var m = { 1: "Location permission denied. Enter the pickup point manually.",
+              2: "Location unavailable. Check signal, or enter the point manually.",
+              3: "Location request timed out. Try again." };
+    setStatus(m[err.code] || "Could not get your location.", "err");
+  }
+
+  btn.addEventListener("click", function () {
+    if (!("geolocation" in navigator)) { setStatus("This browser does not support location access.", "err"); return; }
+    if (!window.isSecureContext) { setStatus("Location needs HTTPS or localhost. Open this page over a secure connection.", "err"); return; }
+    setBusy(true);
+    setStatus("Requesting location\u2026", "busy");
+    navigator.geolocation.getCurrentPosition(onSuccess, onError, { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
+  });
+
+  fType.addEventListener("change", refresh);
+  fPoint.addEventListener("input", refresh);
+  copyBtn.addEventListener("click", function () {
+    if (!navigator.clipboard) { setStatus("Clipboard is not available in this browser.", "err"); return; }
+    navigator.clipboard.writeText(compose()).then(
+      function () { setStatus("Request copied to clipboard.", "ok"); },
+      function () { setStatus("Could not copy. Select the preview text manually.", "err"); }
+    );
+  });
+  resetBtn.addEventListener("click", reset);
+
+  refresh();
+  $("#yr").textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
